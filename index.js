@@ -61,12 +61,29 @@ app.post('/api/persons', (request, response) => {
   });
 });
 
+app.put('/api/persons/:id', (request, response, next) => {
+  const body = request.body;
+
+  const person = {
+    name: body.name,
+    number: body.number,
+  };
+
+  Person.findByIdAndUpdate(request.params.id, person, { new: true })
+    .then((updatedPerson) => {
+      response.json(updatedPerson);
+    })
+    .catch((error) => next(error));
+});
+
 app.get('/info', (request, response) => {
-  response.send(
-    `<p>Phonebook has info for ${
-      phonebook.length
-    } people</p><p>${new Date()}</p>`
-  );
+  Person.find()
+    .estimatedDocumentCount()
+    .then((count) => {
+      response.send(
+        `<p>Phonebook has info for ${count} people</p><p>${new Date()}</p>`
+      );
+    });
 });
 
 const PORT = process.env.PORT;
